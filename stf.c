@@ -1,62 +1,15 @@
+#include <stdlib.h>
+#include <stdio.h>
 #include <math.h>
 #include "utils.h"
 
-void* tinti(float* t, float Tr, float Ts, float t0, float slip, float* stf_out) {
-	int i;
-	int n;
-
-	// get length of the time-series to compute the source time function
-	n = length_f(t);
-
-	// generate source time function
-	for (i=0; i<n; i++) {
-		// set of first ranges
-		if (Tr > 2*Ts) {
-			// 0 < t < ts
-			if ((t >= 0) && (t < Ts)) {
-				stf_out[i] = r1(t[i], Tr);
-			}
-			
-			// ts < t < 2*ts
-			else if ((t >= Ts) && (t < 2*Ts)) {
-				stf_out[i] = r2(t[i], Tr, Ts);
-			}
-
-			// 2*ts < t < tr
-			else if ((t>=Ts) && (t<Tr)) {
-				stf_out[i] = r3(t[i], Tr, Ts);
-			}
-
-			// tr < t < tr + ts
-			else if ((t>=Tr)&&(t<Tr+Ts)) {
-				stf_out[i] = r4(t[i], Tr, Ts);
-			}
-
-			else if ((t>Tr+Ts)&&(t<Tr+2*Ts)) {
-				stf_out[i] = r5(t[i], Tr, Ts);
-			}
-			// ts + ts < t < tr + 2*ts
-
-		// set of second ranges
-
-			// 0 < t < ts
-
-			// ts < t < tr
-
-			// tr < t < 2*ts
-
-			// 2*ts < t < ts + tr
-
-			// ts + tr < t < tr + 2*ts
-		}	
-	}
-}
+#define PI 3.14159265358979323846
 
 /* helping functions to build the tinti function, r stands for range. */
 float r1(float t, float Tr) {
 	float p1;
 
-	p1 = (Pi*(4*t - Tr)*Tr + 8*pow(t,1.5)*sqrt(-t + Tr) + 4*Tr*sqrt(t*(-t + Tr)) - 
+	p1 = (PI*(4*t - Tr)*Tr + 8*pow(t,1.5)*sqrt(-t + Tr) + 4*Tr*sqrt(t*(-t + Tr)) - 
      2*(4*t - Tr)*Tr*atan((-2*t + Tr)/(2.*sqrt(t*(-t + Tr)))))/16.;
 
 	return p1;
@@ -97,6 +50,7 @@ float r3(float t, float Tr, float Ts) {
 
 float r4(float t, float Tr, float Ts) {
 	float p1;
+	float p2;
 	
 	p1 = t*Tr*acos(sqrt((t - Ts)/Tr)) + (-(sqrt((t - Ts)*(-t + Tr + Ts))*(2*t + Tr + 2*Ts)) - 
       pow(Tr,2)*acos(1.0/sqrt(Tr/(t - Ts))))/4.;
@@ -113,21 +67,150 @@ float r4(float t, float Tr, float Ts) {
 float r5(float t, float Tr, float Ts) {
 	float p1;
 
-	p1 = (4*(2*t + Tr - 4*Ts)*sqrt(-((t - 2*Ts)*(t - Tr - 2*Ts))) + Pi*Tr*(-4*t + Tr + 8*Ts) + 
+	p1 = (4*(2*t + Tr - 4*Ts)*sqrt(-((t - 2*Ts)*(t - Tr - 2*Ts))) + PI*Tr*(-4*t + Tr + 8*Ts) + 
      	  2*Tr*(-4*t + Tr + 8*Ts)*atan((-2*t + Tr + 4*Ts)/(2.*sqrt((t - 2*Ts)*(-t + Tr + 2*Ts)))))/16.;
 
    return p1;
 }
 
 /* used for different integration range when Ts < Tr < 2 Ts */
-float sr3(float* ts, float Tr, float Ts) {
+float sr3(float t, float Tr, float Ts) {
 	float p1, p2;
 
 	p1 = t*Tr*acos(sqrt((t - Ts)/Tr)) + (-(sqrt((t - Ts)*(-t + Tr + Ts))*(2*t + Tr + 2*Ts)) - 
       pow(Tr,2)*acos(1.0/sqrt(Tr/(t - Ts))))/4.;
 
-	p2 = (-4*(2*t + Tr - 6*Ts)*sqrt((t - Ts)*(-t + Tr + Ts)) + Pi*Tr*(-4*t + Tr + 8*Ts) - 
+	p2 = (-4*(2*t + Tr - 6*Ts)*sqrt((t - Ts)*(-t + Tr + Ts)) + PI*Tr*(-4*t + Tr + 8*Ts) - 
       2*Tr*(-4*t + Tr + 8*Ts)*atan((-2*t + Tr + 2*Ts)/(2.*sqrt((t - Ts)*(-t + Tr + Ts)))))/16.;
 
 	return p1+p2;
+}
+
+void tinti(float* t, int nt, float Tr, float Ts, float t0, float slip, float* stf_out) {
+	int i;
+	float t_shift;
+	float k;
+
+	// constant during integration
+	k = 2 / (PI*Tr*pow(Ts,2));
+
+	// generate source time function
+	for (i=0; i<nt; i++) {
+		
+		// allow shift in start of source-time function
+		if (t0 > 0.0) {
+			t_shift = t[i] - t0;
+		}
+		else {
+			t_shift = t[i];
+		}
+		
+
+		// condition 1 of integral: Tr > 2*Ts
+		if (Tr > 2*Ts) {
+			// 0 < t < ts
+			if ((t_shift >= 0) && (t_shift <= Ts)) {
+				stf_out[i] = k * r1(t_shift, Tr);
+			}
+			
+			// ts < t < 2*ts
+			else if ((t_shift > Ts) && (t_shift < 2*Ts)) {
+				stf_out[i] = k * r2(t_shift, Tr, Ts);
+			}
+
+			// 2*ts < t < tr
+			else if ((t_shift >= Ts) && (t_shift < Tr)) {
+				stf_out[i] = k * r3(t_shift, Tr, Ts);
+			}
+
+			// tr < t < tr + ts
+			else if ((t_shift >= Tr)&&(t_shift < Tr+Ts)) {
+				stf_out[i] = k * r4(t_shift, Tr, Ts);
+			}
+
+			// ts + ts < t < tr + 2*ts
+			else if ((t_shift >= Tr+Ts)&&(t_shift < Tr+2*Ts)) {
+				stf_out[i] = k * r5(t_shift, Tr, Ts);
+			}
+
+			else {
+				stf_out[i] = 0.0;
+			}
+		}
+
+		// condition 2 of integral: Ts < Tr < 2*Ts
+		else if ((Tr > Ts) && (Tr < 2*Ts)) {
+			// 0 < t < ts
+			if ((t_shift>=0)&&(t_shift<=Ts)) {
+				stf_out[i] = k * r1(t_shift, Tr);
+			}
+
+			// ts < t < tr
+			else if ((t_shift > Ts) && (t_shift < Tr)) {
+				stf_out[i] = k * r2(t_shift, Tr, Ts);
+			}
+
+			// tr < t < 2*ts
+			else if ((t_shift >= Tr) && (t_shift < 2*Ts)) {
+				stf_out[i] = k * sr3(t_shift, Tr, Ts);
+			}
+
+			// 2*ts < t < ts + tr
+			else if ((t_shift >= 2*Ts) && (t_shift < Ts+Tr)) {
+				stf_out[i] = k * r4(t_shift, Tr, Ts);
+			}
+
+			// ts + tr < t < tr + 2*ts
+			else if ((t_shift >= Ts+Tr) && (t_shift<Ts+2*Tr)) {
+				stf_out[i] = k * r5(t_shift, Tr, Ts);
+			}	
+
+			else {
+				stf_out[i] = 0.0;
+			}
+		}
+
+		// sanity check
+		else {
+			fprintf(stderr, "Warning! Tr must be greater than Ts!\n");
+		}
+
+		// scale normalized slip-rate by slip.
+		stf_out[i] *= slip;
+	}
+
+	// note: void function no return
+	return;
+}
+
+int main() {
+	float Ts = 0.1;
+	float Tr = 2.0;
+	float t0 = 1.0;
+	float slip = 1.0;
+	int i;
+	float *t; 
+	float *stf;
+	int nt;
+	float test;
+
+	// test limiting conditions on function
+	
+	// define time vector
+	t = arange(0, 10, 0.001, &nt);
+
+	// allocate zeroed buffer
+	stf = zeros(nt);
+
+	// generate tinti source-time function
+	tinti(t, nt, Tr, Ts, t0, slip, stf);
+
+	for (i=0; i<nt; i++) {
+		printf("%f\n", stf[i]);
+	}
+
+	free(stf);
+	free(t);
+
+	return 0;
 }

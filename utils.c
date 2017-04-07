@@ -30,6 +30,19 @@ float* arange(float start, float end, float dx, int *n) {
 
 }
 
+float* zeros(int n) {
+    float* buf;
+    int i;
+
+    buf = (float*)malloc(n*sizeof(float));
+    for (i=0; i<n; i++) {
+        buf[i] = 0;
+    }
+
+    return buf;
+}
+
+
 float sum(float *buf, int n) {
     float total;
     int i;
@@ -37,20 +50,10 @@ float sum(float *buf, int n) {
     for (i=0;i<n;i++) {
         total += buf[i];
     }
+
     return total;
 }
 
-int length_f(float* buf) {
-    int n;
-    n = sizeof(buf) / sizeof(buf[0]);
-    return n;
-}
-
-int length_i(int* buf) {
-    int n;
-    n = sizeof(buf) / sizeof(buf[0]);
-    return n;
-}
 /*
 int main() {
     float *buf;

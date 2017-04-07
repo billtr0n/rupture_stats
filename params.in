@@ -1,0 +1,22 @@
+nchunks = 1
+nx = 2601
+ny = 801 
+dt_sord = 0.002
+dt_awp = 0.00175
+rupture_time = 20.0010
+nt_sord = 10001
+dx_sord = 25
+mean_faultn_coord = 20000.0
+x_start = 1600
+y_start = 1600
+z_start = 1
+nhat1_file = "./out/nhat1"
+nhat2_file = "./out/nhat2"
+nhat3_file = "./out/nhat3"
+momrate_file = "./striped/momrate"
+mu_file = "./out/mu_two_step"
+ycomp_file = "./out/x3o"
+sv1_file = "./out/sv1"
+sv2_file = "./out/sv2"
+sv3_file = "./out/sv3"
+
