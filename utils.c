@@ -1,6 +1,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 float* linspace(float start, float end, int length) {
     float* buf;
@@ -30,18 +31,29 @@ float* arange(float start, float end, float dx, int *n) {
 
 }
 
-float* zeros(int n) {
+float* zeros_f(int n) {
     float* buf;
     int i;
 
     buf = (float*)malloc(n*sizeof(float));
+    for (i=0; i<n; i++) {
+        buf[i] = 0.0;
+    }
+
+    return buf;
+}
+
+int* zeros_i(int n) {
+    int* buf;
+    int i;
+
+    buf = (int*)malloc(n*sizeof(int));
     for (i=0; i<n; i++) {
         buf[i] = 0;
     }
 
     return buf;
 }
-
 
 float sum(float *buf, int n) {
     float total;
@@ -52,6 +64,78 @@ float sum(float *buf, int n) {
     }
 
     return total;
+}
+
+float** cartesian( float **A, int *np, int *ncom, int ndim ) {
+    int i, j;
+    int n = 1;
+    int DEBUG = 1;
+    int *c;
+    float **B;
+
+    // compute ncom
+    for (i=0; i<ndim; i++) {
+        n *= np[i];
+    }
+    *ncom = n;
+
+    // allocate count array
+    c = zeros_i( ndim );
+
+    // allocate output array
+    B = (float**) malloc( sizeof(float*) * n );
+    for (i=0; i<n; i++) {
+        B[i] = (float*) malloc(sizeof(float)*ndim);
+    }
+
+    // prepare combinations
+    if (DEBUG) {
+        printf("\n");
+        printf("Combinations\n");
+        printf("============\n");
+    }
+
+    for (i=0; i<n; i++) {
+        for (j=0; j<ndim; j++) {
+            if (c[j]==np[j]) {
+                c[j+1]++;
+                c[j]=0;
+            }
+            B[i][j] = A[j][c[j]];
+        }
+        if (DEBUG) {
+            printf("{%d, %d, %d} -> {%f, %f %f}\n", c[0], c[1], c[2], B[i][0], B[i][1], B[i][2]);
+        }
+        
+        c[0]++;
+    }
+        
+    // all done!
+    return B;
+
+}
+
+
+bool compare_f( float a, float b, float eps ) {
+    return fabs(a-b) < eps;       
+}
+
+void dealloc2d_f( float** buf, int n ) {
+    int i;
+
+    for (i=0; i<n; i++) {
+        free(buf[i]);
+    }
+    free(buf);
+}
+
+void dealloc2d_i( int** buf, int n ) {
+    int i;
+
+    for (i=0; i<n; i++) {
+        free(buf[i]);
+    }
+    free(buf);
 }
 
 /*

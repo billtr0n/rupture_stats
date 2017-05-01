@@ -78,7 +78,8 @@ void write_locations(char *fname, MPI_Offset off, int nsites, int *xloc, int *yl
 
     MPI_File_close(&fh);
 }
-/* non-collective i/o ... DEPRECATED */
+
+
 void write_scalar_int(char *fname, MPI_Offset off, int count, int *buf) {
     MPI_File fh;
     int ierr;
@@ -93,7 +94,6 @@ void write_scalar_int(char *fname, MPI_Offset off, int count, int *buf) {
 }
 
 
-/* non-collective i/o ... DEPRECATED */
 void write_tensor_time_series(char *fname, MPI_Offset off, int nt, float **buf) {
     MPI_File fh;
     int ierr;
@@ -204,9 +204,6 @@ void write_momrate(char *fname, int nst, int nchunks, int rank, int csize, int i
 
    ierr=MPI_File_write_all(fh, buf2, csize*6*nst, MPI_FLOAT, MPI_STATUS_IGNORE);
    error_check(ierr, "MPI_File_write_at_all()");
-
-   /* test 
-   MPI_Barrier(MPI_COMM_WORLD); */
 
    ierr=MPI_Type_free(&filetype2);
    error_check(ierr, "MPI_Type_free()");
