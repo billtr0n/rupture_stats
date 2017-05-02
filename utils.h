@@ -45,3 +45,20 @@ void dealloc2d_f( float** buf, int n );
 
 /* clean function to deallocate 2d int array */
 void dealloc2d_i( int** buf, int n );
+
+/* outer product obv, these vectors must be the same length */
+float **outer( float *v1, float *v2, int n );
+
+/* rastrigin function used for optimization defaults to 2d
+	inputs
+		(float) x : x value
+		(float) y : y value
+*/
+float rastrigin( float x, float y );
+
+/* ackley function used for optimization defaults to 2d
+	inputs
+		(float) x : x value
+		(float) y : y value
+*/
+float ackley( float x, float y );

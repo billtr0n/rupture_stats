@@ -1,23 +1,23 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "utils.h"
+#include "brute.h"
+#include <stdio.h>
 
 /* the object function will most likely be defined in another module or the main program.  this file contains only the actual optimization
    algorithm.  the empirical form also accepts a pointer to an array consisting of an empirical function to compute misfit against.
    see brute.h for parameter information.
 */
-float* fmin_brute( obj_fun_ptr func, int ndim, float *pl, float *ph, float *pd, float** extras, float* full_output ) {
+float* fmin_brute( obj_fun_ptr objective_function_ptr, float **p, int ndim, int np, float** extras, int* ne, float* full_output ) {
 
 	float **par;
+	float *par_out;
 	float **comb;
-	int *n_par;
 	float res, tmp;
+	bool DEBUG = false;
 
 	// indexing variables
-	int i, pi, mi;
-
-	// total number of combinations 
-	int n_comb;
+	int i, pi, mi, di;
 
 	// current minimum 
 	float fmin = 0.0f;
@@ -25,44 +25,40 @@ float* fmin_brute( obj_fun_ptr func, int ndim, float *pl, float *ph, float *pd, 
 	// check if NULL is passed and set flag accordingly
 	bool full = (full_output != NULL) ? true : false;
 
-	// create parameters
-	n_par = (int*) malloc( sizeof(int) * ndim );
-	par = (float**) malloc( sizeof(float*) * ndim );
-	for (i=0; i<ndim; i++) {
-		par[i] = arange(plow[i], phigh[i], pdel[i], &n_par[i]);
-	}
-
-	// generate all possible combinations of parameters
-	comb = cartesian_product( par, n_par, &n_comb, ndim );
-
 	// allocate memory to store global cost function
-	if (full) {
-		full_output = (float*) malloc( sizeof(float) * n_comb);
-	}
+	par_out = (float*) malloc(sizeof(float)*ndim);
 
 	// main driver of the program
-	for (i=0; i<n_comb; i++) {
+	for (i=0; i<np; i++) {
 
 		// compute residual using cost function
-		res = func(comb[i], extras);
+		res = (*objective_function_ptr)(p[i], extras, ne);
 
 		// update or prime on first iteration
 		if (i == 0 || res < fmin) {
 			fmin = res;
 			mi = i;
 		}
+
+		if (DEBUG) {
+			for (di=0; di<ndim; di++) {
+				printf("%f ", p[i][di]);
+			}
+			printf("res=%f\n", res);
+		}
  		
 		// save residual if full
 		if (full) full_output[i] = res;
+		if (DEBUG) printf("%f\n", full_output[i]);
 	}
 
-	// free stuff
-	free(n_par);
-	dealloc2d_f(par, ndim);
-	dealloc2d_f(comb, n_comb);
+	// deep copy of output
+	for (i=0; i<ndim; i++) {
+		par_out[i] = p[mi][i];
+	}
 
 	// return best fitting parameters
-	return comb[mi];
+	return par_out;
 }
 
 

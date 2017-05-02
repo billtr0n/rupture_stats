@@ -7,19 +7,21 @@
 	returns:
 		value of cost function 
 */
-typedef float (*obj_fun_ptr)(float*, float**);
+typedef float (*obj_fun_ptr)(float*, float**, int*);
 
 
 /* function: performs brute force optimization given arbitrary cost function 
 	inputs:
-		emp_obj_fun_ptr objective_function_ptr: function pointer
-		int ndim: number of dimensions in optimization problem
-		float* pl: array containing low values of parameters
-		float* ph: array containing max values of parameters
-		float* pd: array containing increment of parameters
-		float** extras: time series for empirical comparisons
-		float* full_output : pass NULL if not requested. allocation for full_output will happen inside fmin_brute
+		(obj_fun_ptr) objective_function_ptr: function pointer
+		(int) ndim: number of dimensions in optimization problem
+		(float*) pl: array containing low values of parameters
+		(float*) ph: array containing max values of parameters
+		(float*) pd: array containing increment of parameters
+		(float**) extras: time series for empirical comparisons
+		(int*) ne : length of each array in extras
+		(float*) full_output : pass NULL if not requested. allocation for full_output will happen inside fmin_brute
 	returns:
 		float* fmin_brute: array containing best fitting parameters.
 */
-float* fmin_brute( obj_fun_ptr objective_function_ptr, int ndmin, float *pl, float *ph, float *pd, float** extras, float* full_output );
+float* fmin_brute( obj_fun_ptr objective_function_ptr, 
+						float **p, int ndim, int np, float** extras, int* ne, float* full_output );

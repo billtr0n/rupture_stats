@@ -118,10 +118,10 @@ int main (int argc, char*argv[]) {
         /* organize into 2d arrays for easy filtering */
         for (n=0; n < nt_sord; n++) {
             for (l=0; l < csize; l++) {
-                sv1[l][n]=buf_sv1[n*csize+l];
-                sv2[l][n]=buf_sv2[n*csize+l];
-                sv3[l][n]=buf_sv3[n*csize+l];
-                svm[l][n]=sqrt(powf(sv1[l][n],2)+powf(sv2[l][n],2)+powf(sv3[l][n],2));
+                sv1[l][n] = buf_sv1[n*csize+l];
+                sv2[l][n] = buf_sv2[n*csize+l];
+                sv3[l][n] = buf_sv3[n*csize+l];
+                svm[l][n] = sqrt(powf(sv1[l][n],2)+powf(sv2[l][n],2)+powf(sv3[l][n],2));
             }
         }
 

@@ -66,10 +66,10 @@ float sum(float *buf, int n) {
     return total;
 }
 
-float** cartesian( float **A, int *np, int *ncom, int ndim ) {
+float** cartesian_product( float **A, int *np, int *ncom, int ndim ) {
     int i, j;
     int n = 1;
-    int DEBUG = 1;
+    bool DEBUG = false;
     int *c;
     float **B;
 
@@ -137,6 +137,51 @@ void dealloc2d_i( int** buf, int n ) {
     }
     free(buf);
 }
+
+float **outer( float *v1, float *v2, int n ) {
+    int i, j;
+    float **m;
+
+    m = (float**) malloc(sizeof(float*) * n);
+    for (i=0; i<n; i++) {
+        m[i] = (float*) malloc(sizeof(float) * n);
+    }
+
+    for (i=0; i<n; i++) {
+        for (j=0; j<n; j++) {
+            m[i][j] = v1[i] * v2[j];
+        }
+    }
+
+    return m;
+
+}
+
+float rastrigin( float x, float y ) {
+    float f;
+    float p1,p2,p3;
+    int i, j;
+    int d = 2;
+    float pi = 3.14159265359;
+
+    p1 = 10*d;
+    p2 = x*x + y*y;
+    p3 = 10 * (cos(2*pi*x) + cos(2*pi*y));
+    
+    f = p1 + p2 - p3;
+    return f;
+}
+
+float ackley( float x, float y ) {
+    float p1, p2, f;
+    float pi = 3.14159265359;
+
+    p1 = 20*exp(-0.2 * sqrt(0.5*(x*x+y*y)));
+    p2 = exp(0.5*(cos(2*pi*x) + cos(2*pi*y)));
+    f = -p1 - p2 + exp(1) + 20;
+    return f;
+}
+
 
 /*
 int main() {
