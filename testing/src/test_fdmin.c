@@ -57,9 +57,13 @@ int main() {
 
 }
 
-float objective_function(float *p, float **extras, int *ne) {
+float objective_function(float *p, void **extras) {
 	float r;
 	r = rastrigin(p[0], p[1]);
 	// r = ackley(p[0], p[1]);
 	return r;
+}
+
+float empirical_objective_function(float *p, void **extras) {
+	return 0.0;
 }

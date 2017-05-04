@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include "../utils.h"
+#include "../../utils.h"
 
 int main() {
 	
@@ -10,14 +10,12 @@ int main() {
 	int i, j;
     bool test;
 
-	int ndim = 3;
+	int ndim = 1;
 	int ncom;
 
-	float plow[3] = {1,4,6};
-	float phigh[3] = {2,8,8};
-	float pdel[3] = {1,1,1};
-
-
+	float plow[1] = {1};
+	float phigh[1] = {4};
+	float pdel[1] = {1};
 
 	// contains all total paramers
 	A = (float**) malloc( ndim * sizeof(float*) );
@@ -48,7 +46,7 @@ int main() {
 		printf(" }\n");
 	}
 
-	B =cartesian( A, np, &ncom, ndim );
+	B =cartesian_product( A, np, &ncom, ndim );
 
 
 	return 0;
