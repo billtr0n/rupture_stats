@@ -14,7 +14,7 @@
 		- stf_out : pointer to array of length nt.  (allocations done in main program to prevent messy
 												     memory leaks)
 */
-void tinti(float* t, int nt, float Tr, float Ts, float t0, float slip, float* stf_out);
+float* tinti(float* t, int nt, float Tr, float Ts, float t0, float slip);
 
 /* returns exponential source time function at times t. */
 // float* exponential(float* t, float vpeak, float t0, float slip);

@@ -86,13 +86,18 @@ float sr3(float t, float Tr, float Ts) {
 	return p1+p2;
 }
 
-void tinti(float* t, int nt, float Tr, float Ts, float t0, float slip, float* stf_out) {
+float* tinti(float* t, int nt, float Tr, float Ts, float t0, float slip) {
 	int i;
 	float t_shift;
 	float k;
-
+	float *stf_out;
+	
+	// allocate zeroed buffer
+	stf_out = zeros_f(nt);
 	// constant during integration
 	k = 2 / (PI*Tr*pow(Ts,2));
+
+	// printf("(in tinti): nt=%d Tr=%f Ts=%f t0=%f slip=%f\n", nt, Tr, Ts, t0, slip);
 
 	// generate source time function
 	for (i=0; i<nt; i++) {
@@ -185,10 +190,11 @@ void tinti(float* t, int nt, float Tr, float Ts, float t0, float slip, float* st
 		stf_out[i] *= slip;
 	}
 
-	// note: void function no return
-	return;
+	
+	return stf_out;
 }
 
+/*
 int main() {
 	float Ts = 1.1;
 	float Tr = 2.0;
@@ -205,21 +211,18 @@ int main() {
 	// define time vector
 	t = arange(0, 10, 0.001, &nt);
 
-	// allocate zeroed buffer
-	stf = zeros(nt);
-
 	// generate tinti source-time function
-	tinti(t, nt, Tr, Ts, t0, slip, stf);
+	stf = tinti(t, nt, Tr, Ts, t0, slip);
 
 	for (i=0; i<nt; i++) {
 		printf("%f\n", stf[i]);
 	}
 
-	/* 
-	   testing values at function boundaries.  
-	   note: values of inf are OK so long as every interval has an inequality 
-	   that provides finite values. 
-	*/
+	 
+	//   testing values at function boundaries.  
+	//  note: values of inf are OK so long as every interval has an inequality 
+	//   that provides finite values. 
+	
 
 	// test boundary conditions for all the integral ranges
 	// printf("Case 1: Tr > 2*Ts\n");
@@ -255,4 +258,4 @@ int main() {
 	free(t);
 
 	return 0;
-}
+} */

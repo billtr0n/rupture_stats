@@ -8,7 +8,7 @@
    algorithm.  the empirical form also accepts a pointer to an array consisting of an empirical function to compute misfit against.
    see brute.h for parameter information.
 */
-float* fmin_brute( obj_fun_ptr objective_function_ptr, float **p, int ndim, int np, float** extras, int* ne, float* full_output ) {
+float* fmin_brute( obj_fun_ptr objective_function_ptr, float **p, int ndim, int np, void** extras, float* full_output ) {
 
 	float **par;
 	float *par_out;
@@ -32,7 +32,7 @@ float* fmin_brute( obj_fun_ptr objective_function_ptr, float **p, int ndim, int 
 	for (i=0; i<np; i++) {
 
 		// compute residual using cost function
-		res = (*objective_function_ptr)(p[i], extras, ne);
+		res = (*objective_function_ptr)(p[i], extras);
 
 		// update or prime on first iteration
 		if (i == 0 || res < fmin) {

@@ -31,6 +31,7 @@ int main() {
 	int tmp_n;
 	int t0_ind, tarr_ind;
 	float Tr;
+	float strike, dip, rake;
 	FILE *fout, *fin;
 	
 	/////////////////////////////////////////////////
@@ -68,6 +69,9 @@ int main() {
 	// compute peak slip velocity
 	psv = maximum(sv1, nt);
 	printf("k_slip=%f d_slip=%f psv=%f\n", slip, trapz(sv1, nt, dt), psv);
+
+	// compute strike, dip, and rake
+	
 
 	// set-up extras
 	extras[0] = (void*) sv1;

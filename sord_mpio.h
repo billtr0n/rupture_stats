@@ -3,7 +3,9 @@ void read_time_series(char *fname, int nx, int ny, int xi, int yi,
                         
 void read_fault_params(char *fname, MPI_Offset off, int nsites, float *buf);
 
+void write_fault_params(char *fname, MPI_Offset off, int nsites, float *buf, MPI_Datatype datatype);
 
+/* Deprecated:  Replaced with write_fault_params
 void write_scalar_int(char *fname, MPI_Offset off, int count, int *buf);
 
 /* write out fast component, then time 

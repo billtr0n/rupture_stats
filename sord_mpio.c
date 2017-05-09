@@ -121,6 +121,21 @@ void write_tensor_time_series(char *fname, MPI_Offset off, int nt, float **buf) 
     free(out_buf);
 } 
 
+void write_fault_params(char *fname, MPI_Offset off, int nsites, float *buf, MPI_Datatype datatype) {
+  MPI_File fh;
+  int ierr;
+  int i;
+
+  ierr=MPI_File_open(MPI_COMM_WORLD, fname, MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI_INFO_NULL, &fh);
+  error_check(ierr, "MPI_File_open()");
+
+  ierr=MPI_File_write_at(fh, off, buf, nsites, datatype, MPI_STATUS_IGNORE);
+  error_check(ierr, "MPI_File_write_at()"); 
+
+  MPI_File_close(&fh);
+
+}
+
 void write_momrate(char *fname, int nst, int nchunks, int rank, int csize, int ion, int *xi, int *yi, int *zi,
      float **xx, float **yy, float **zz, float **xz, float **yz, float **xy){
 
