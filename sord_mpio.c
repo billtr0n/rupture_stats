@@ -129,8 +129,8 @@ void write_fault_params(char *fname, MPI_Offset off, int nsites, float *buf, MPI
   ierr=MPI_File_open(MPI_COMM_WORLD, fname, MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI_INFO_NULL, &fh);
   error_check(ierr, "MPI_File_open()");
 
-  ierr=MPI_File_write_at(fh, off, buf, nsites, datatype, MPI_STATUS_IGNORE);
-  error_check(ierr, "MPI_File_write_at()"); 
+  ierr=MPI_File_write_at_all(fh, off, buf, nsites, datatype, MPI_STATUS_IGNORE);
+  error_check(ierr, "MPI_File_write_at_all()"); 
 
   MPI_File_close(&fh);
 

@@ -94,6 +94,7 @@ float* tinti(float* t, int nt, float Tr, float Ts, float t0, float slip) {
 	
 	// allocate zeroed buffer
 	stf_out = zeros_f(nt);
+
 	// constant during integration
 	k = 2 / (PI*Tr*pow(Ts,2));
 
@@ -142,9 +143,8 @@ float* tinti(float* t, int nt, float Tr, float Ts, float t0, float slip) {
 				stf_out[i] = 0.0;
 			}
 		}
-
 		// condition 2 of integral: Ts < Tr < 2*Ts
-		else if ((Tr > Ts) && (Tr < 2*Ts)) {
+		else if ((Tr > Ts) && (Tr <= 2*Ts)) {
 			// 0 < t < ts
 			if ((t_shift>=0)&&(t_shift<=Ts)) {
 				stf_out[i] = k * r1(t_shift, Tr);
@@ -183,7 +183,7 @@ float* tinti(float* t, int nt, float Tr, float Ts, float t0, float slip) {
 
 		// sanity check
 		else {
-			fprintf(stderr, "Warning! Tr must be greater than Ts!\n");
+			fprintf(stderr, "Warning! Tr (%f) must be greater than Ts (%f)!\n", Tr, Ts);
 		}
 
 		// scale normalized slip-rate by slip.
@@ -258,4 +258,5 @@ int main() {
 	free(t);
 
 	return 0;
-} */
+    }
+    */

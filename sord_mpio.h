@@ -5,11 +5,11 @@ void read_fault_params(char *fname, MPI_Offset off, int nsites, float *buf);
 
 void write_fault_params(char *fname, MPI_Offset off, int nsites, float *buf, MPI_Datatype datatype);
 
-/* Deprecated:  Replaced with write_fault_params
+// Deprecated:  Replaced with write_fault_params
 void write_scalar_int(char *fname, MPI_Offset off, int count, int *buf);
 
-/* write out fast component, then time 
-ie. mxx(1), myy(1), mzz(1), mxz(1), myz(1), mzz(1), mxx(2) .... mxx(n) */
+// write out fast component, then time 
+// ie. mxx(1), myy(1), mzz(1), mxz(1), myz(1), mzz(1), mxx(2) .... mxx(n)
 void write_tensor_time_series(char *fname, MPI_Offset off, int nt, float **buf);
 
 void write_momrate(char* fname, int nst, int nchunks, int rank, int csize, int ion, int *xi, int *yi, int *zi,

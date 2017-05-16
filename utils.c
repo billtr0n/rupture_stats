@@ -389,8 +389,8 @@ int main() {
     int nt = 10001;
 
     // read test slip-rate function
-    sv1 = malloc(sizeof(float) * nt);
-    fin = fopen( "../scratch/sv1_1300_400_le.bin", "rb" );
+    sv1 = (float*) malloc(sizeof(float) * nt);
+    fin = fopen( "./testing/scratch/sv1_1300_400.bin", "rb" );
     fread( sv1, sizeof(float), nt, fin );
     fclose( fin );
 
@@ -399,8 +399,7 @@ int main() {
     arg2 = find_first(&sv1[arg1+1], nt-arg1-1, "<", 0.001);
     printf("end=%d\n", arg1+arg2);
     return 0;
-}
-*/
+}*/
 
 /* testing slice
 int main() {
@@ -424,7 +423,7 @@ int main() {
 int main() {
     float *buf;
     int i;
-    int n = 100;
+    int n = 10001;
     int new_n;
     float pi = 3.14159;
     float* arg;

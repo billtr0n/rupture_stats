@@ -25,8 +25,8 @@ float* fmin_brute( obj_fun_ptr objective_function_ptr, float **p, int ndim, int 
 	// check if NULL is passed and set flag accordingly
 	bool full = (full_output != NULL) ? true : false;
 
-	// allocate memory to store global cost function
-	par_out = (float*) malloc(sizeof(float)*ndim);
+	// allocate memory to store optimized parameters
+	par_out = malloc(sizeof(float)*ndim);
 
 	// main driver of the program
 	for (i=0; i<np; i++) {
@@ -40,16 +40,9 @@ float* fmin_brute( obj_fun_ptr objective_function_ptr, float **p, int ndim, int 
 			mi = i;
 		}
 
-		if (DEBUG) {
-			for (di=0; di<ndim; di++) {
-				printf("%f ", p[i][di]);
-			}
-			printf("res=%f\n", res);
-		}
- 		
 		// save residual if full
 		if (full) full_output[i] = res;
-		if (DEBUG) printf("%f\n", full_output[i]);
+		if (DEBUG) printf("%f\n", res);
 	}
 
 	// deep copy of output

@@ -71,7 +71,6 @@ float get_strike(float nhat1, float nhat3) {
 float get_rake(float nhat1, float nhat2, float nhat3, float su1, float su2, float su3) {
     int i;
     float s;
-    float ns1, ns2, ns3;
     float slip[3], ns[3];
     float arg;
     float scaling;
@@ -95,17 +94,15 @@ float get_rake(float nhat1, float nhat2, float nhat3, float su1, float su2, floa
     to_unit_vector(ns, 3);
     to_unit_vector(slip, 3);
 
-    // printf("su1=%f su2=%f su3=%f\n", slip[0], slip[1], slip[2]);
-    // printf("ns1=%f ns2=%f ns3=%f\n", ns[0], ns[1], ns[2]);
-
     // dot product argument
+
     arg = slip[0]*ns[0]+slip[1]*ns[1]+slip[2]*ns[2];
 
     // adjusting for nan caused by floating point issues
     if ( arg >= (1.0 + FTOL) ) {
         arg = 1.0;
     }
-    // printf("arg=%f scaling=%f\n", arg, scaling);
+    //printf("arg=%f scaling=%f\n", arg, scaling);
     rake = acos( arg ) * RAD2DEG;
     return rake;
 }
