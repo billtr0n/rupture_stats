@@ -231,6 +231,35 @@ void write_momrate(char *fname, int nst, int nchunks, int rank, int csize, int i
    free(blen2);
 }
 
+// note: this function doesn't support nchunks != 1
+void write_fault_params_with_comm(char *fname, float *sbuf, int scount, int nparts, int root, MPI_Comm comm) {
+
+    FILE *fout;
+    float t1, t2;
+
+    int rank;
+    int ierr;
+    float *rbuf;
+
+    MPI_Comm_rank( comm, &rank );
+    if (rank==root) {
+        rbuf = malloc( sizeof(float)*scount*nparts );
+    }
+
+    // gather data from all ranks to output buffer
+    ierr = MPI_Gather(sbuf, scount, MPI_FLOAT, rbuf, scount, MPI_FLOAT, root, comm);
+    error_check(ierr, "MPI_Gather()");
+    
+    // write to file 
+    // change to MPI-IO command to handle filesize offsets
+    if (rank==root) {
+        fout = fopen(fname, "wb");
+        fwrite(rbuf, sizeof(float)*scount*nparts, 1, fout);
+        fclose(fout);
+        free(rbuf);
+    }
+    MPI_Barrier(comm);
+}
 /* test driver for mpi-i /o subroutines */
 /*
 int main() {

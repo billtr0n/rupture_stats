@@ -123,7 +123,6 @@ bool compare_f( float a, float b, float eps ) {
 
 void dealloc2d_f( float** buf, int n ) {
     int i;
-
     for (i=0; i<n; i++) {
         free(buf[i]);
     }
@@ -330,7 +329,7 @@ float* unit_vector_3d( float n1, float n2, float n3 ) {
     out[0] = n1;
     out[1] = n2;
     out[2] = n3;
-    s = 1.0 / norm(out, 3);
+    s = 1.0 / norm(out, ndim);
 
     // scale
     for( i=0; i<ndim; i++ ) {

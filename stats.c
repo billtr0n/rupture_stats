@@ -12,11 +12,11 @@
 #include <math.h>
 #include <stdlib.h>
 #include "sord_mpio.h"
+#include "sord_utils.h"
 #include "utils.h"
 #include "brute.h"
 #include "stf.h"
 
-#define ndim 1
 #define DEFAULT -99999.0f
 
 // function prototypes
@@ -26,11 +26,13 @@ int main (int argc, char*argv[]) {
     //////////////////////////////////////////////////////////////////////////
     // USER PARAMETERS
     //////////////////////////////////////////////////////////////////////////
+    
+    int ndim = 1;
     int nchunks = 1; /* also equal to the number of i/o calls */
     int nx = 2601, ny = 801, nt=10001;
     float dt = 0.002;
     int dx = 25;
-    float pl[ndim], ph[ndim], pd[ndim];
+    float pl[1], ph[1], pd[1]; // should have size of ndim
     int debug = 0;
     int nfields = 12;
     
@@ -154,11 +156,6 @@ int main (int argc, char*argv[]) {
     n_par = malloc(sizeof(int) * ndim);
     par = malloc(sizeof(float*) * ndim);
 
-
-    // allocate buffers for receiving data from all processes
-    if (rank==0) {
-        rbuf = malloc(sizeof(float)*csize*nprocs);
-    }
 
     // time vector
     t = arange(0, dt*nt, dt, &tmp_n);
@@ -340,7 +337,10 @@ int main (int argc, char*argv[]) {
                     buf_psv_kin[l] = DEFAULT;
                 }
             }
-            // if (rank==0) fprintf(stdout, "strike=%f dip=%f rake=%f\n", buf_strike[l], buf_dip[l], buf_rake[l]);
+            //if (rank==3891) {
+            //    fprintf(stderr, "strike=%f dip=%f rake=%f nhat1=%f nhat2=%f nhat3=%f su[0]=%f su[1]=%f su[2]=%f su1=%f su2=%f su3=%f\n", 
+            //        buf_strike[l], buf_dip[l], buf_rake[l], buf_nhat1[l], buf_nhat2[l], buf_nhat3[l], su[0], su[1], su[2], su1, su2, su3);
+            //}
 
             // end nicely.
             free(su);
@@ -351,69 +351,72 @@ int main (int argc, char*argv[]) {
         fprintf(stdout, "(%d) Finished calculating chunk in %f seconds.\n", rank, t2-t1);
             
         /* write out necessary info */
-        if (rank==0) fprintf(stdout, "Preparing to gather calculated statistics.\n");
         MPI_Barrier(MPI_COMM_WORLD);
+        if (rank==0) fprintf(stdout, "Preparing to gather and output data calculated statistics.\n");
         t1 = MPI_Wtime();
-        MPI_Gather(buf_tp, csize, MPI_FLOAT, rbuf, csize, MPI_FLOAT, 0, MPI_COMM_WORLD);
+        write_fault_params_with_comm(tp_file, buf_tp, csize, nprocs, 0, MPI_COMM_WORLD); 
+        write_fault_params_with_comm(tr_file, buf_tr, csize, nprocs, 0, MPI_COMM_WORLD); 
+        write_fault_params_with_comm(slip_file, buf_slip, csize, nprocs,  0, MPI_COMM_WORLD); 
+        write_fault_params_with_comm(slip_kin_file, buf_slip_kin, csize, nprocs, 0, MPI_COMM_WORLD); 
+        write_fault_params_with_comm(psv_file, buf_psv, csize, nprocs, 0, MPI_COMM_WORLD); 
+        write_fault_params_with_comm(psv_kin_file, buf_psv_kin, csize, nprocs, 0, MPI_COMM_WORLD); 
+        write_fault_params_with_comm(t0_file, buf_t0, csize, nprocs, 0, MPI_COMM_WORLD); 
+        write_fault_params_with_comm(tarr_file, buf_tarr, csize, nprocs, 0, MPI_COMM_WORLD); 
+        write_fault_params_with_comm(tarr_kin_file, buf_tarr_kin, csize, nprocs, 0, MPI_COMM_WORLD); 
+        write_fault_params_with_comm(dip_file, buf_dip, csize, nprocs, 0, MPI_COMM_WORLD); 
+        write_fault_params_with_comm(rake_file, buf_rake, csize, nprocs,  0, MPI_COMM_WORLD); 
+        write_fault_params_with_comm(strike_file, buf_strike, csize, nprocs, 0, MPI_COMM_WORLD); 
         MPI_Barrier(MPI_COMM_WORLD);
         t2 = MPI_Wtime();
-        if (rank==0) fprintf(stdout, "Receiving processed data using MPI_Gather() in %f seconds.\n", t2-t1);
-        
-        //write_fault_params(tp_file, off, csize, buf_tp, MPI_FLOAT); 
-        //write_fault_params(tr_file, off, csize, buf_tr, MPI_FLOAT); 
-        //write_fault_params(slip_file, off, csize, buf_slip, MPI_FLOAT);
-        //write_fault_params(slip_kin_file, off, csize, buf_slip_kin, MPI_FLOAT); 
-        //write_fault_params(psv_file, off, csize, buf_psv, MPI_FLOAT); 
-        //write_fault_params(psv_kin_file, off, csize, buf_psv_kin, MPI_FLOAT); 
-        //write_fault_params(t0_file, off, csize, buf_t0, MPI_FLOAT); 
-        //write_fault_params(tarr_file, off, csize, buf_tarr, MPI_FLOAT); 
-        //write_fault_params(tarr_kin_file, off, csize, buf_tarr_kin, MPI_FLOAT);
-        //write_fault_params(dip_file, off, csize, buf_dip, MPI_FLOAT);
-        //write_fault_params(rake_file, off, csize, buf_rake, MPI_FLOAT);
-        //write_fault_params(strike_file, off, csize, buf_strike, MPI_FLOAT);
+        if (rank==0) fprintf(stdout, "Finished gathering output data and calculated statistics in %f seconds..\n", t2-t1);
         
         // just write out right now, later, we will need to handle the case
         // when nchunks is not equal to 1.
-        if (rank==0) {
-            t1 = MPI_Wtime();
-            FILE *fout = fopen("./stats/tp", "wb");
-            fwrite(rbuf, sizeof(float)*csize*nprocs, 1, fout);
-            fclose(fout);
-            t2 = MPI_Wtime();
-            fprintf(stdout, "Finished writing in %f seconds.\n", t2-t1);
-        }
 
     } /* end main loop */
 
 
     /* free buffers */
-    dealloc2d_f(sv1, csize);
-    dealloc2d_f(sv2, csize);
-    dealloc2d_f(sv3, csize);
-    dealloc2d_f(svm, csize);
-    dealloc2d_f(par, ndim); 
+    for (i=0; i<csize; i++) {
+        free(sv1[i]);
+    }
+    free(sv1);
+
+    for (i=0; i<csize; i++) {
+        free(sv2[i]);
+    }
+    free(sv2);
+
+    for (i=0; i<csize; i++) {
+        free(sv3[i]);
+    }
+    free(sv3);
+
+    for (i=0; i<csize; i++) {
+        free(svm[i]);
+    }
+    free(svm);
+
+    for (i=0; i<ndim; i++) {
+        free(par[i]);
+    }
+    free(par);
+
     free(buf_nhat1);
     free(buf_nhat2);
     free(buf_nhat3);
-    free(buf_sv1);
-    free(buf_sv2);
-    free(buf_sv3);
     free(buf_tp);
     free(buf_tr);
     free(buf_slip);
     free(buf_slip_kin);
     free(buf_psv);
-    free(buf_slip);
+    free(buf_psv_kin);
     free(buf_t0);
-    free(rbuf);
     free(buf_tarr);
     free(buf_tarr_kin);
     free(buf_dip);
     free(buf_rake);
     free(buf_strike);
-    //free(full);
-    free(stf);
-    free(t);
 
     /* finalize mpi */
     MPI_Barrier(MPI_COMM_WORLD);

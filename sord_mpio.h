@@ -16,3 +16,5 @@ void write_momrate(char* fname, int nst, int nchunks, int rank, int csize, int i
      float **xx, float **yy, float **zz, float **xz, float **yz, float **xy);
 
 void write_locations(char *fname, MPI_Offset off, int nsites, int *xloc, int *yloc, int *zloc);
+
+void write_fault_params_with_comm(char *fname, float *sbuf, int scount, int nparts, int root, MPI_Comm comm);

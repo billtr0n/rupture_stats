@@ -1,6 +1,6 @@
 FC = mpixlf90
 CC = mpixlc
-FLAGS = -g
+FLAGS = -g -O3
 
 all:
 	make sord_mpio
