@@ -16,9 +16,9 @@ float get_dip(float nhat1, float nhat2, float nhat3) {
  	float theta;
  	
  	// assumes that free surface is at x1-x3 plane
-    nproj[0] = 1;
+    nproj[0] = nhat1;
     nproj[1] = 0;
-    nproj[2] = 1;
+    nproj[2] = nhat3;
     to_unit_vector(nproj, 3);
 
 
@@ -39,7 +39,6 @@ float get_dip(float nhat1, float nhat2, float nhat3) {
     else if (nhat2 <= 0) {
     	dip = 90 - theta;
     }
-    dip = theta;
     
  	return dip;
 }
@@ -86,15 +85,15 @@ float get_rake(float nhat1, float nhat2, float nhat3, float su1, float su2, floa
         return -99999.0;
     }
 
-    // (I - nn)[:,0] gives vector along strike
-    ns[0] = (1.0 - nhat1 * nhat1);
-    ns[1] = (-nhat1 * nhat2);
-    ns[2] = (-nhat1 * nhat3);
+    // nhat x [0 1 0]
+    // (nhat[2]) - (nhat[0])
+    ns[0] = nhat3;
+    ns[1] = 0;
+    ns[2] = -nhat1;
     to_unit_vector(ns, 3);
-    // to_unit_vector(slip, 3);
+    to_unit_vector(slip, 3);
 
-    // dot product argument
-
+    // cross product
     arg = slip[0]*ns[0]+slip[1]*ns[1]+slip[2]*ns[2];
 
     //printf("arg=%f scaling=%f\n", arg, scaling);
@@ -108,19 +107,30 @@ int main() {
     float su1, su2, su3;
     float strike, dip, rake;
 
-    //nhat1=-0.057126;
-    //nhat2=-0.042879;
-    //nhat3=0.997446;
-    nhat1=-0.221027;
-    nhat2=-0.022632;
-    nhat3=0.975005;
-    su1=0.998367;
-    su2=-0.001967;
-    su3=0.057093;
+    nhat1=-0.057126;
+    nhat2=0.082879;
+    nhat3=0.997446;
+
+    nhat1 = 0;
+    nhat2 = 0;
+    nhat3 = 1;
+
+    //nhat2=-0.221027;
+    //nhat1=-0.022632;
+    //nhat3=0.975005;
+
+    //su1=0.998367;
+    //su2=-0.001967;
+    //su3=0.057093;
+    
+    su1=1;
+    su2=0;
+    su3=0;
 
     strike = get_strike(nhat1, nhat3);
     dip = get_dip(nhat1, nhat2, nhat3);
     rake = get_rake(nhat1, nhat2, nhat3, su1, su2, su3);
+    
     //printf("Test 1: Strike and Slip in same direction.\n\tExpect Strike = 0.0 Dip = 90.0 Rake = 0.0\n");
     printf("nhat = [%f %f %f]\nslip = [%f %f %f]\n", nhat1, nhat2, nhat3, su1, su2, su3);
     printf("strike=%f\ndip=%f\nrake=%f\n\n", strike, dip, rake);
@@ -132,7 +142,6 @@ int main() {
     printf("nhat = [%f %f %f]\nslip = [%f %f %f]\n", nhat1, nhat2, nhat3, su1, su2, su3);
     printf("strike=%f\ndip=%f\nrake=%f\n\n", strike, dip, rake);
     
-
     return 0;
 }
 */

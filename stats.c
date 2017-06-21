@@ -35,7 +35,7 @@ int main (int argc, char*argv[]) {
     float pl[1], ph[1], pd[1]; // should have size of ndim
     int debug = 0;
     int nfields = 12;
-    
+
     // input file names
     char *nhat1_file = "./out/nhat1";
     char *nhat2_file = "./out/nhat2";
@@ -114,6 +114,7 @@ int main (int argc, char*argv[]) {
         MPI_Finalize();
         exit(1);
     }
+    //
     
     /* number of time-series read per mpi-io call */
     csize = nx*ny / nprocs / nchunks;
@@ -127,16 +128,16 @@ int main (int argc, char*argv[]) {
     buf_nhat3 = calloc(csize, sizeof(float));
 
     /* 2D arrays for time-series */
-    sv1 = (float**)calloc(csize, sizeof(float*));
-    sv2 = (float**)calloc(csize, sizeof(float*));
-    sv3 = (float**)calloc(csize, sizeof(float*));
-    svm = (float**)calloc(csize, sizeof(float*));
+    sv1 = calloc(csize, sizeof(float*));
+    sv2 = calloc(csize, sizeof(float*));
+    sv3 = calloc(csize, sizeof(float*));
+    svm = calloc(csize, sizeof(float*));
     
     for (l=0; l<csize; l++) {
-        sv1[l] = (float*) calloc(nt, sizeof(float));
-        sv2[l] = (float*) calloc(nt, sizeof(float));
-        sv3[l] = (float*) calloc(nt, sizeof(float));
-        svm[l] = (float*) calloc(nt, sizeof(float));
+        sv1[l] = calloc(nt, sizeof(float));
+        sv2[l] = calloc(nt, sizeof(float));
+        sv3[l] = calloc(nt, sizeof(float));
+        svm[l] = calloc(nt, sizeof(float));
     }
 
     // calculated arrays
@@ -164,6 +165,7 @@ int main (int argc, char*argv[]) {
         MPI_Finalize();
         exit(-1);
     }
+
 
     /* main working loop */
     MPI_Barrier(MPI_COMM_WORLD);
@@ -211,7 +213,6 @@ int main (int argc, char*argv[]) {
         }
 
         // perform evalulations of slip-rate files
-
         MPI_Barrier(MPI_COMM_WORLD);
         if (rank==0) fprintf(stdout, "Calculating slip-rate statistics for chunk %d.\n", k);
         t1 = MPI_Wtime();
@@ -300,13 +301,12 @@ int main (int argc, char*argv[]) {
                     extras[6] = (void*) &buf_tr[l];
 
                     // if (rank==0) fprintf(stderr, "n_comb=%d ndim=%d\n", n_comb, ndim);
-
                     // define parameters for estimation
                     // same as: arange(dt, Tr/2.0, dt);
                     pl[0] = dt;
                     ph[0] = buf_tr[l]/2.0 - dt;
                     pd[0] = dt;
-
+    
                     // create possibly jagged array of parameters       
                     for (i=0; i<ndim; i++)  {
                         par[i] = arange(pl[i], ph[i], pd[i], &n_par[i]);
@@ -327,6 +327,9 @@ int main (int argc, char*argv[]) {
                     buf_psv_kin[l] = maximum( stf, nt );            
 
                     // free memory allocated during loop
+                    for (i=0; i<ndim; i++) {
+                        free(par[i]);
+                    }
                     free(min);
                     free(comb);
                     free(stf);
@@ -397,11 +400,10 @@ int main (int argc, char*argv[]) {
     }
     free(svm);
 
-    for (i=0; i<ndim; i++) {
-        free(par[i]);
-    }
     free(par);
-
+    free(buf_sv1);
+    free(buf_sv2);
+    free(buf_sv3);
     free(buf_nhat1);
     free(buf_nhat2);
     free(buf_nhat3);

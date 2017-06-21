@@ -23,7 +23,7 @@ float* arange(float start, float end, float dx, int *n) {
     int i;
     
     length = ceil( (end - start) / dx);
-    buf = (float*)malloc(length*sizeof(float));
+    buf = malloc(length*sizeof(float));
     for (i=0; i<length; i++) {
         buf[i] = start + dx*i;
     }
