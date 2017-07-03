@@ -1,5 +1,5 @@
 # rupture_stats
-mpi program to fit kinematic slip-rate functions to dynamic rupture simulations.
+mpi program to fit kinematic slip-rate functions to dynamic rupture simulations.  mpi parallelization across subfaults, num_procs == nx*ny/nprocs/nchunks
 
 # current data products
 t0 - rupture initiation <br>
