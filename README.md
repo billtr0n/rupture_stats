@@ -2,10 +2,10 @@
 mpi program to fit kinematic slip-rate functions to dynamic rupture simulations.
 
 # current data products
-t0 - rupture initiation \\
-tarr - rupture arrest time \\
-slip - final slip \\
-psv - peak slip velocity \\
-dc' - slip-weakening distance estimated from tinti et al. 2005  \\
-ts - half-window length \\
-tr - rise-time of yoffe fuction \\
+t0 - rupture initiation <br>
+tarr - rupture arrest time <br>
+slip - final slip <br>
+psv - peak slip velocity <br>
+dc' - slip-weakening distance estimated from tinti et al. 2005  <br>
+ts - half-window length <br>
+tr - rise-time of yoffe fuction <br>
