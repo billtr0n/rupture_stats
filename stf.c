@@ -196,7 +196,7 @@ float* tinti(float* t, int nt, float Tr, float Ts, float t0, float slip) {
 
 /*
 int main() {
-	float Ts = 1.1;
+	float Ts = 0.1;
 	float Tr = 2.0;
 	float t0 = 1.0;
 	float slip = 1.0;
@@ -207,7 +207,6 @@ int main() {
 	float test;
 
 	// test limiting conditions on function
-	
 	// define time vector
 	t = arange(0, 10, 0.001, &nt);
 
@@ -215,44 +214,42 @@ int main() {
 	stf = tinti(t, nt, Tr, Ts, t0, slip);
 
 	for (i=0; i<nt; i++) {
-		printf("%f\n", stf[i]);
+    		printf("%f\n", stf[i]);
 	}
 
 	 
 	//   testing values at function boundaries.  
 	//  note: values of inf are OK so long as every interval has an inequality 
 	//   that provides finite values. 
-	
-
 	// test boundary conditions for all the integral ranges
-	// printf("Case 1: Tr > 2*Ts\n");
-	// printf("r1: %f\n", r1(0, Tr));
-	// printf("r1: %f\n", r1(Ts, Tr));
-	// printf("r2: %f\n", r2(Ts, Tr, Ts));
-	// printf("r2: %f\n", r2(2 * Ts, Tr, Ts));
-	// printf("r3: %f\n", r3(2 * Ts, Tr, Ts));
-	// printf("r3: %f\n", r3(Tr, Tr, Ts));
-	// printf("r4: %f\n", r4(Tr, Tr, Ts));
-	// printf("r4: %f\n", r4(Tr + Ts, Tr, Ts));
-	// printf("r5: %f\n", r5(Tr + Ts, Tr, Ts));
-	// printf("r5: %f\n", r5(Tr + 2*Ts, Tr, Ts));
+	printf("Case 1: Tr > 2*Ts\n");
+	printf("r1: %f\n", r1(0, Tr));
+	printf("r1: %f\n", r1(Ts, Tr));
+	printf("r2: %f\n", r2(Ts, Tr, Ts));
+	printf("r2: %f\n", r2(2 * Ts, Tr, Ts));
+	printf("r3: %f\n", r3(2 * Ts, Tr, Ts));
+	printf("r3: %f\n", r3(Tr, Tr, Ts));
+	printf("r4: %f\n", r4(Tr, Tr, Ts));
+	printf("r4: %f\n", r4(Tr + Ts, Tr, Ts));
+	printf("r5: %f\n", r5(Tr + Ts, Tr, Ts));
+	printf("r5: %f\n", r5(Tr + 2*Ts, Tr, Ts));
 
-	// // second range only differs in the "third" integration range
-	// Ts = 1.1;
-	// Tr = 2.0;
-	// // generate tinti source-time function
-	// tinti(t, nt, Tr, Ts, t0, slip, stf);
-	// printf("Case 2: Ts < Tr < 2*Ts\n");
-	// printf("r1: %f\n", r1(0, Tr));
-	// printf("r1: %f\n", r1(Ts, Tr));
-	// printf("r2: %f\n", r2(Tr, Tr, Ts));
-	// printf("r2: %f\n", r2(Tr, Tr, Ts));
-	// printf("sr3: %f\n", sr3(Tr, Tr, Ts));
-	// printf("sr3: %f\n", sr3(2 * Ts, Tr, Ts));
-	// printf("r4: %f\n", r4(2 * Ts, Tr, Ts));
-	// printf("r4: %f\n", r4(Tr + Ts, Tr, Ts));
-	// printf("r5: %f\n", r5(Tr + Ts, Tr, Ts));
-	// printf("r5: %f\n", r5(Tr + 2*Ts, Tr, Ts));
+	// second range only differs in the "third" integration range
+	Ts = 1.1;
+	Tr = 2.0;
+	// generate tinti source-time function
+	stf = tinti(t, nt, Tr, Ts, t0, slip);
+	printf("Case 2: Ts < Tr < 2*Ts\n");
+	printf("r1: %f\n", r1(0, Tr));
+	printf("r1: %f\n", r1(Ts, Tr));
+	printf("r2: %f\n", r2(Tr, Tr, Ts));
+	printf("r2: %f\n", r2(Tr, Tr, Ts));
+	printf("sr3: %f\n", sr3(Tr, Tr, Ts));
+	printf("sr3: %f\n", sr3(2 * Ts, Tr, Ts));
+	printf("r4: %f\n", r4(2 * Ts, Tr, Ts));
+	printf("r4: %f\n", r4(Tr + Ts, Tr, Ts));
+	printf("r5: %f\n", r5(Tr + Ts, Tr, Ts));
+	printf("r5: %f\n", r5(Tr + 2*Ts, Tr, Ts));
 
 	free(stf);
 	free(t);

@@ -57,6 +57,7 @@ int main (int argc, char*argv[]) {
     char *dip_file = "./stats/dip";
     char *rake_file = "./stats/rake";
     char *strike_file = "./stats/strike";
+    char *dcp_file = "./stats/dcp";
     
     //////////////////////////////////////////////////////////////////////////
     // Don't modify anything below here. 
@@ -71,6 +72,7 @@ int main (int argc, char*argv[]) {
     float *buf_tarr_kin;
     float *buf_slip_kin, *buf_psv, *buf_psv_kin, *buf_t0, *buf_tarr, *buf_slip;
     float *buf_strike, *buf_dip, *buf_rake;
+    float *buf_dcp;
     float *t_sord;
 
     float su1, su2, su3;
@@ -90,6 +92,7 @@ int main (int argc, char*argv[]) {
     int n_comb;
     int *n_par;
     int t0_ind;
+    int psv_ind;
 
     void *extras[25];
 
@@ -153,6 +156,7 @@ int main (int argc, char*argv[]) {
     buf_t0 = calloc(csize, sizeof(float));
     buf_tarr = calloc(csize, sizeof(float));
     buf_tarr_kin = calloc(csize, sizeof(float));
+    buf_dcp = calloc(csize, sizeof(float));
 
     n_par = malloc(sizeof(int) * ndim);
     par = malloc(sizeof(float*) * ndim);
@@ -243,6 +247,7 @@ int main (int argc, char*argv[]) {
                 buf_psv_kin[l] = DEFAULT;
                 buf_slip_kin[l] = DEFAULT;
                 buf_rake[l] = DEFAULT;
+                buf_dcp[l] = DEFAULT;
 
                 // should be quite close to zero.
                 buf_slip[l] = sqrt(powf(su1,2)+powf(su2,2)+powf(su3,2));
@@ -304,7 +309,8 @@ int main (int argc, char*argv[]) {
                     // define parameters for estimation
                     // same as: arange(dt, Tr/2.0, dt);
                     pl[0] = dt;
-                    ph[0] = buf_tr[l]/2.0 - dt;
+                    // based on initial runs, let max value be 1.0 seconds or buf_tr[l]/2.0 - dt
+                    ph[0] = ( (buf_tr[l]/2.0 - dt) < 1.0 ) ? buf_tr[l]/2.0 - dt : 1.0;
                     pd[0] = dt;
     
                     // create possibly jagged array of parameters       
@@ -321,10 +327,15 @@ int main (int argc, char*argv[]) {
                     // fprintf(stderr, "(%d:%d) Tp=%f Tr=%f\n", rank, l, buf_tp[l], buf_tr[l]);
 
                     // compute tinti function with best fitting parameters
-                    stf = tinti(t, nt, buf_tr[l], min[0], buf_t0[l], buf_slip_kin[l]);
+                    stf = tinti(t, nt, buf_tr[l], buf_tp[l], buf_t0[l], buf_slip_kin[l]);
 
                     // compute kinematic psv
                     buf_psv_kin[l] = maximum( stf, nt );            
+
+                    // compute dc prime [mikumo et al., 2003]
+                    psv_ind = find_first( &stf[t0_ind+1], nt-t0_ind, ">=", buf_psv_kin[l] );
+                    buf_dcp[l] = trapz( &stf[t0_ind+1], psv_ind, dt );
+                    fprintf(stdout, "(%d) -> psv: %f psv_ind: %d dcp: %f\n", rank, buf_psv_kin[l], psv_ind, buf_dcp[l]);
 
                     // free memory allocated during loop
                     for (i=0; i<ndim; i++) {
@@ -338,6 +349,7 @@ int main (int argc, char*argv[]) {
                 } else {
                     buf_tp[l] = DEFAULT;
                     buf_psv_kin[l] = DEFAULT;
+                    buf_dcp[l] = DEFAULT;
                 }
             }
             //if (rank==3891) {
@@ -369,6 +381,7 @@ int main (int argc, char*argv[]) {
         write_fault_params_with_comm(dip_file, buf_dip, csize, nprocs, 0, MPI_COMM_WORLD); 
         write_fault_params_with_comm(rake_file, buf_rake, csize, nprocs,  0, MPI_COMM_WORLD); 
         write_fault_params_with_comm(strike_file, buf_strike, csize, nprocs, 0, MPI_COMM_WORLD); 
+        write_fault_params_with_comm(dcp_file, buf_dcp, csize, nprocs, 0, MPI_COMM_WORLD); 
         MPI_Barrier(MPI_COMM_WORLD);
         t2 = MPI_Wtime();
         if (rank==0) fprintf(stdout, "Finished gathering output data and calculated statistics in %f seconds..\n", t2-t1);
